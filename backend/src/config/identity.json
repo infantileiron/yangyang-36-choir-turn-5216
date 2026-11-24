@@ -1,0 +1,14 @@
+{
+  "slug": "yangyang-36-choir-turn",
+  "title": "箫岸合唱·谱架翻页提示试唱",
+  "direction": "配对定量符号秩检验",
+  "layout": "rail",
+  "theme": "洋红排练提示笺",
+  "recipient": "箫岸社区合唱排练组",
+  "work_modules": [
+    "同人同谱双测",
+    "配对节拍偏差与有符号秩",
+    "分声部试唱复核"
+  ],
+  "follow_latest": false
+}

@@ -1,0 +1,60 @@
+{
+  "organization": "箫岸社区合唱排练组",
+  "tagline": "按节拍偏差衡量谱架提示，而不是按漏拍次数",
+  "source": "双次对照排练的匿名工票与伴奏定位的节拍偏差",
+  "record_name": "翻页节拍偏差配对",
+  "algorithm": "配对 Wilcoxon 符号秩精确符号翻转",
+  "formula": "每人的改善量为常规提示绝对偏差减新提示绝对偏差，以固定节拍格点的千分之一拍为最小单位。剔除零差，同大小绝对差取平均秩，正秩相加为 W+。用动态规划计数所有等概率符号分配，双侧 p=2×较短尾概率；超过 160 个非零配对时改用带并列权重的正态近似。正的中位改善量代表贴近节拍。",
+  "decision_prompt": "新翻页提示缩小了多少节拍偏差，有没有声部应保留常规提示？",
+  "fields": [
+    {
+      "key": "singer",
+      "label": "演唱者匿名号",
+      "example": "XA-071-X",
+      "type": "text"
+    },
+    {
+      "key": "part",
+      "label": "声部",
+      "example": "男低音",
+      "type": "text"
+    },
+    {
+      "key": "sequence",
+      "label": "先唱条件",
+      "example": "新提示",
+      "type": "choice",
+      "choices": [
+        "常规提示",
+        "新提示"
+      ]
+    },
+    {
+      "key": "usual",
+      "label": "常规提示绝对偏差（拍）",
+      "example": 1.4,
+      "type": "number",
+      "min": 0,
+      "max": 10
+    },
+    {
+      "key": "new",
+      "label": "新提示绝对偏差（拍）",
+      "example": 0.6,
+      "type": "number",
+      "min": 0,
+      "max": 10
+    }
+  ],
+  "parameters": [
+    {
+      "key": "alpha",
+      "label": "整体主指标显著水平",
+      "type": "number",
+      "min": 0.001,
+      "max": 0.25,
+      "default": 0.05,
+      "help": "声部和先唱条件结果用于描述复盘。"
+    }
+  ]
+}

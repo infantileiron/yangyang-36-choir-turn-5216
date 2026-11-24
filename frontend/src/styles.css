@@ -133,3 +133,31 @@ form .primary { margin-top:3px; }
   .count { min-width:0; }.table-wrap th, .table-wrap td { padding:7px 11px; }
 }
 @media (prefers-reduced-motion:reduce) { *, *::before, *::after { animation:none !important; } }
+
+.summary-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%, 150px),1fr)); gap:12px; margin:0 0 20px; }
+.summary-card { border:1px solid var(--line); background:var(--surface); padding:14px 17px; display:flex; flex-direction:column; gap:3px; border-inline-start:4px solid var(--line); }
+.summary-card b { font:700 clamp(1.5rem,2.6vw,2.2rem)/1.2 var(--display); color:var(--accent); font-variant-numeric:tabular-nums; }
+.summary-card span { color:var(--quiet); font-size:.84rem; font-weight:600; }
+.summary-card.paired { border-inline-start-color:oklch(.55 .13 153); }
+.summary-card.missing { border-inline-start-color:oklch(.62 .12 75); }
+.summary-card.blocked { border-inline-start-color:oklch(.55 .17 28); }
+.filter-tabs { display:flex; gap:6px; flex-wrap:wrap; }
+.filter-tab { padding:5px 11px; border:1px solid var(--line); text-decoration:none; color:var(--quiet); font-size:.82rem; font-weight:600; background:var(--light); white-space:nowrap; }
+.filter-tab b { margin-left:4px; font-variant-numeric:tabular-nums; }
+.filter-tab.active { color:var(--light); background:var(--accent); border-color:var(--accent); }
+.state { display:inline-flex; align-items:center; padding:3px 8px; font-size:.78rem; font-weight:700; white-space:nowrap; border:1px solid var(--line); }
+.state-paired { color:oklch(.36 .1 153); background:oklch(.93 .05 153); }
+.state-missing { color:oklch(.4 .11 75); background:oklch(.94 .06 80); }
+.state-blocked { color:oklch(.4 .15 28); background:oklch(.93 .045 28); }
+.reading-status { display:inline-flex; padding:2px 7px; font-size:.75rem; font-weight:600; border:1px solid var(--line); white-space:nowrap; }
+.reading-status-active { color:oklch(.36 .1 153); background:oklch(.93 .05 153); }
+.reading-status-superseded { color:var(--quiet); background:var(--wash); }
+.reading-status-conflict { color:oklch(.4 .15 28); background:oklch(.93 .045 28); }
+.cell-missing { display:inline-flex; padding:2px 8px; font-size:.76rem; font-weight:700; color:oklch(.4 .11 75); background:oklch(.94 .06 80); }
+td small { display:block; color:var(--quiet); font-size:.72rem; font-weight:400; }
+.issue { font-size:.8rem; font-weight:600; white-space:nowrap; }
+.issue-ok { color:oklch(.38 .1 153); }
+.issue-missing { color:oklch(.4 .12 75); }
+.issue-blocked { color:oklch(.42 .16 28); }
+.singer-history { border-top:1px solid var(--line); background:var(--wash); }
+.singer-history .panel-heading { background:var(--surface); }

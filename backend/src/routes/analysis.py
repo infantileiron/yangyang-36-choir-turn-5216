@@ -53,3 +53,15 @@ def export(run_id: int, user=Depends(current_user)):
         file = f'{SPEC["slug"]}-run-{run_id}.csv'
         return Response(csv_text(result['columns'], result['rows']), media_type='text/csv',
                         headers={'Content-Disposition': f'attachment; filename={file}'})
+
+
+@router.get('/{run_id}/pairs')
+def export_pairs(run_id: int, user=Depends(current_user)):
+    with Session() as db:
+        run, _ = visible_runs(db, user, run_id)
+        if run.status != RunStatus.SUCCEEDED:
+            raise BusinessError('分析完成后才能下载入样配对', 409)
+        result = run.result
+        file = f'{SPEC["slug"]}-run-{run_id}-pairs.csv'
+        return Response(csv_text(result['pair_columns'], result['pair_rows']), media_type='text/csv',
+                        headers={'Content-Disposition': f'attachment; filename={file}'})

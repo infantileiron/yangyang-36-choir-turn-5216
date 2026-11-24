@@ -1,14 +1,15 @@
 import json
 import logging
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from src.config.project import SPEC
 from src.constants.enums import Decision, Role, RunStatus
-from src.domain.analysis import analyze
+from src.domain.analysis import PAIR_COLUMNS, analyze, pair_detail_rows
 from src.models.base import utc_now
-from src.models.workflow import AnalysisRun, AuditEvent, Observation, Review
+from src.models.workflow import AnalysisRun, AuditEvent, Reading, Review
 from src.services.errors import BusinessError
+from src.services.readings import paired_rows
 from src.services.validation import validated
 
 logger = logging.getLogger(__name__)
@@ -16,14 +17,21 @@ logger = logging.getLogger(__name__)
 
 def create_run(db, request, actor):
     parameters = validated(SPEC['parameters'], request.parameters, defaults=True)
-    sample_ids = list(db.scalars(select(Observation.id).order_by(Observation.id)))
-    if not sample_ids:
-        raise BusinessError('请先导入观测记录')
-    item = AnalysisRun(title=request.title, owner=actor, parameters=parameters, observation_ids=sample_ids,
-                       last_observation_id=sample_ids[-1], sample_size=len(sample_ids))
+    pairs, exclusions = paired_rows(db)
+    if not pairs:
+        raise BusinessError('还没有两种提示读数齐备且无冲突的配对，请先在数据台账补齐读数')
+    last_reading_id = db.scalar(select(func.max(Reading.id))) or 0
+    reading_ids = sorted(reading_id for pair in pairs for reading_id in pair['reading_ids'])
+    item = AnalysisRun(
+        title=request.title, owner=actor, parameters=parameters,
+        pairs=pair_detail_rows(pairs), exclusions=exclusions,
+        reading_ids=reading_ids, last_reading_id=last_reading_id, sample_size=len(pairs))
     db.add(item)
     db.flush()
-    db.add(AuditEvent(actor=actor, action='run.created', detail=f'分析 #{item.id}，固化 {item.sample_size} 条观测'))
+    db.add(AuditEvent(
+        actor=actor, action='run.created',
+        detail=(f'分析 #{item.id}，冻结 {item.sample_size} 个入样配对，'
+                f'排除 {len(exclusions)} 名演唱者（快照末号 {last_reading_id}）')))
     return item
 
 
@@ -62,9 +70,12 @@ def run_pending(db):
     if item is None:
         return False
     try:
-        sample = list(db.scalars(select(Observation.payload).where(Observation.id.in_(item.observation_ids))
-                                 .order_by(Observation.id)))
-        result = analyze(sample, item.parameters)
+        # 只使用发起时冻结的配对，排队期间补录或更正不会改动本分析
+        result = analyze(item.pairs, item.parameters)
+        # 附带冻结的逐行配对明细与被排除演唱者，保证 CSV 与台账口径一致
+        result['pair_columns'] = [{'key': key, 'label': label} for key, label in PAIR_COLUMNS]
+        result['pair_rows'] = item.pairs
+        result['exclusions'] = item.exclusions
         if not {'headline', 'summary', 'metrics', 'columns', 'rows'} <= set(result):
             raise RuntimeError('invalid result schema')
         json.dumps(result, allow_nan=False, ensure_ascii=False)

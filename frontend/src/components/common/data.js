@@ -13,6 +13,10 @@ export function status(run) {
   return `<span class="status status-${esc(key)}">${esc(statusName[key] || key)}</span>`;
 }
 
+export function stateBadge(row) {
+  return `<span class="state state-${esc(row.state)}">${esc(row.state_label)}</span>`;
+}
+
 export function bars(chart) {
   if (!chart?.points?.length) return '';
   const points = chart.points.filter(point => typeof point.value === 'number' && Number.isFinite(point.value)).slice(0, 14);
